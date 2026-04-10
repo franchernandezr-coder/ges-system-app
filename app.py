@@ -4,6 +4,8 @@ from datetime import date
 import unicodedata
 from io import BytesIO
 from thefuzz import process, fuzz
+import re
+import math
 
 # =====================================================
 # CONFIGURACIÓN GENERAL
@@ -14,6 +16,7 @@ st.set_page_config(
     layout="wide",
     initial_sidebar_state="expanded"
 )
+
 # =====================================================
 # DISEÑO INTELIGENTE ADAPTATIVO
 # =====================================================
@@ -264,7 +267,6 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-import re
 
 def normalizar(texto: str) -> str:
     if not texto:
@@ -284,7 +286,6 @@ def normalizar(texto: str) -> str:
     for mal, bien in correcciones.items():
         texto = re.sub(mal, bien, texto)
 
-    import unicodedata
     texto = "".join(
         c for c in unicodedata.normalize("NFD", texto)
         if unicodedata.category(c) != "Mn"
@@ -506,7 +507,7 @@ SINONIMOS_GES = {
     88: ["Tratamiento farmacologico tras alta hospitalaria por cirrosis hepatica","cirrosis hepatica", "cirrosis", "falla hepatica cronica", "dhc", "daño hepatico cronico"],
     89: ["Tratamiento hospitalario para personas menores de 15 años con depresión grave refractaria o psicótica con riesgo suicida","depresion grave", "episodio depresivo grave", "hospitalizacion psiquiatrica", "depresion hospitalaria"],
     90: ["Cesación del consumo de tabaco en personas de 25 años y más","cesacion tabaco", "tabaquismo", "dejar de fumar", "dependencia nicotina","fumador","cesacion tabaquica"]
-}
+]
 
 df_catalogo_ges = pd.DataFrame(CATALOGO_GES)
 
@@ -642,7 +643,7 @@ def sugerir_patologias(diagnostico_usuario: str):
 # SESSION STATE
 # =====================================================
 COLUMNAS_BASE = [
-    "RUT", "Nombre", "Fecha admisión", "Diagnóstico clínico",
+    "RUT", "Nombre", "Fecha admision", "Diagnostico clinico",
     "Código GES", "Patología GES", "Semáforo GES", "Clasificación",
     "Estado de Notificación", 
 ]
@@ -710,7 +711,7 @@ if menu == "📊 Dashboard":
         
         # Función mejorada: Notificado (True), Pendiente (False), No Aplica (EXCLUIR)
         def es_notificado_inteligente(row):
-            estado = normalizar(str(row["Estado de Notificación"]))
+            estado = normalizar(str(row.get("Estado de Notificación", "")))
             if "notificado" in estado and "sin" not in estado:
                 return "SI"
             if "no aplica" in estado:
@@ -740,7 +741,6 @@ if menu == "📊 Dashboard":
         
         meta = 100.0
         # Ajuste visual para presentación (redondeo "Ceil" a 80) sin tocar la fórmula base matemática
-        import math
         cumplimiento_visual = 80.0 if (78 < cumplimiento < 85) else float(math.ceil(cumplimiento))
         
         diff = cumplimiento_visual - meta
@@ -879,6 +879,10 @@ elif menu == "📥 Carga Excel":
             
             df_raw = df_raw.rename(columns=mapeo)
             df_raw = df_raw.dropna(subset=["RUT"])
+
+            # --- LIMPIEZA DE FECHA DE ADMISIÓN (Evita el 00:00:00) ---
+            if "Fecha admision" in df_raw.columns:
+                df_raw["Fecha admision"] = pd.to_datetime(df_raw["Fecha admision"], errors="coerce").dt.date
 
             # Formatear "N GES" para evitar decimales innecesarios (1.0 -> 1)
             if "N GES" in df_raw.columns:
@@ -1025,7 +1029,7 @@ elif menu == "✍️ Ingreso Manual":
         fecha = st.date_input("Fecha de admisión", value=date.today())
         submit = st.form_submit_button("➕ Agregar paciente")
         if submit:
-            nuevo = {"RUT": rut, "Nombre": nombre, "Fecha admisión": fecha, "Diagnóstico clínico": diagnostico, "Código GES": codigo, "Patología GES": patologia, "Semáforo GES": SEMÁFORO_GES.get(patologia, "⚪"), "Clasificación": clasificacion, "Origen": "Manual"}
+            nuevo = {"RUT": rut, "Nombre": nombre, "Fecha admision": fecha, "Diagnostico clinico": diagnostico, "Código GES": codigo, "Patología GES": patologia, "Semáforo GES": SEMÁFORO_GES.get(patologia, "⚪"), "Clasificación": clasificacion, "Origen": "Manual"}
             st.session_state.ingresos_manuales = pd.concat([st.session_state.ingresos_manuales, pd.DataFrame([nuevo])], ignore_index=True)
             st.success("✅ Paciente agregado")
 
@@ -1036,8 +1040,8 @@ elif menu == "📄 Tabla Operativa":
     if tablas:
         df_total = pd.concat(tablas, ignore_index=True)
         def resaltar_pendientes(row):
-            condicion_ges = row["Patología GES"] != "NO GES"
-            notificado = "notificado" in str(row["Estado de Notificación"]).lower()
+            condicion_ges = row.get("Patología GES", "NO GES") != "NO GES"
+            notificado = "notificado" in str(row.get("Estado de Notificación", "")).lower()
             if condicion_ges and not notificado:
                 return ['background-color: rgba(255, 75, 75, 0.1)'] * len(row)
             return [''] * len(row)
