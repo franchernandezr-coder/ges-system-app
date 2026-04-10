@@ -416,7 +416,6 @@ MAPEO_POR_ID = {
     81: "Cáncer pulmón"
 }
 
-# ¡AQUÍ ESTABA EL ERROR! AHORA SÍ ESTÁ CON LLAVE DE CIERRE }
 SINONIMOS_GES = {
     1: ["enfermedad renal cronica", "erc etapa 4", "erc etapa 5", "dialisis", "hemodialisis"],
     2: ["cardiopatia cogenita operables", "cardiopatia cogenita", "tetralogia de fallot", "comunicacion interventricular"],
@@ -883,7 +882,7 @@ elif menu == "📥 Carga Excel":
 
             # --- LIMPIEZA DE FECHA DE ADMISIÓN (Evita el 00:00:00) ---
             if "Fecha admision" in df_raw.columns:
-                df_raw["Fecha admision"] = pd.to_datetime(df_raw["Fecha admision"], errors="coerce").dt.date
+                df_raw["Fecha admision"] = pd.to_datetime(df_raw["Fecha admision"], errors="coerce").dt.strftime('%d-%m-%Y')
 
             # Formatear "N GES" para evitar decimales innecesarios (1.0 -> 1)
             if "N GES" in df_raw.columns:
@@ -1030,7 +1029,7 @@ elif menu == "✍️ Ingreso Manual":
         fecha = st.date_input("Fecha de admisión", value=date.today())
         submit = st.form_submit_button("➕ Agregar paciente")
         if submit:
-            nuevo = {"RUT": rut, "Nombre": nombre, "Fecha admision": fecha, "Diagnostico clinico": diagnostico, "Código GES": codigo, "Patología GES": patologia, "Semáforo GES": SEMÁFORO_GES.get(patologia, "⚪"), "Clasificación": clasificacion, "Origen": "Manual"}
+            nuevo = {"RUT": rut, "Nombre": nombre, "Fecha admision": fecha.strftime('%d-%m-%Y'), "Diagnostico clinico": diagnostico, "Código GES": codigo, "Patología GES": patologia, "Semáforo GES": SEMÁFORO_GES.get(patologia, "⚪"), "Clasificación": clasificacion, "Origen": "Manual"}
             st.session_state.ingresos_manuales = pd.concat([st.session_state.ingresos_manuales, pd.DataFrame([nuevo])], ignore_index=True)
             st.success("✅ Paciente agregado")
 
