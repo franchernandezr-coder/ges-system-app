@@ -416,6 +416,7 @@ MAPEO_POR_ID = {
     81: "Cáncer pulmón"
 }
 
+# ¡AQUÍ ESTABA EL ERROR! AHORA SÍ ESTÁ CON LLAVE DE CIERRE }
 SINONIMOS_GES = {
     1: ["enfermedad renal cronica", "erc etapa 4", "erc etapa 5", "dialisis", "hemodialisis"],
     2: ["cardiopatia cogenita operables", "cardiopatia cogenita", "tetralogia de fallot", "comunicacion interventricular"],
@@ -428,7 +429,7 @@ SINONIMOS_GES = {
     9: ["disrafias espinales", "disrafia espinal", "espina bifida ", "mielomeningocele", "espinal", "meningocele","siringomielia", "medula anclada", "defectos tubo neural"],
     10: ["Tratamiento quirurgico de escoliosis en personas menores de 25 años", "escoliosis severa", "cirugia de escoliosis ", "escoliosis", "desviacion columna", "curvatura columna"],
     11: ["Tratamiento quirurgico de cataratas", "cataratas senil", "cirugia de catarata", "opacidad cristalino"],
-    12: ["Endoprótesis total de cadera en personas de 65 años y más con artrosis de cadera con limitación funcional severa", "endoprotesis total cadera", "protesis total de cadera", "fractura de cuello de femoral","artrosis cadera", "cadera""endoprotesis total de cadera", "ptc", "protesis cadera"],
+    12: ["Endoprótesis total de cadera en personas de 65 años y más con artrosis de cadera con limitación funcional severa", "endoprotesis total cadera", "protesis total de cadera", "fractura de cuello de femoral","artrosis cadera", "cadera", "endoprotesis total de cadera", "ptc", "protesis cadera"],
     13: ["fisura labiopalatina", "labio leporino", "fisura palatina", "fisura labial", "paladar hendido"],
     14: ["cancer en menores de 15 años", "ca infantil", "tumor infantil", "oncologia pediatrica", "leucemia pediatrica"],
     15: ["esquizofrenia", "trastorno esquizofrenico", "episodio psicotico", "esquizofreniforme", "psicosis"],
@@ -507,7 +508,7 @@ SINONIMOS_GES = {
     88: ["Tratamiento farmacologico tras alta hospitalaria por cirrosis hepatica","cirrosis hepatica", "cirrosis", "falla hepatica cronica", "dhc", "daño hepatico cronico"],
     89: ["Tratamiento hospitalario para personas menores de 15 años con depresión grave refractaria o psicótica con riesgo suicida","depresion grave", "episodio depresivo grave", "hospitalizacion psiquiatrica", "depresion hospitalaria"],
     90: ["Cesación del consumo de tabaco en personas de 25 años y más","cesacion tabaco", "tabaquismo", "dejar de fumar", "dependencia nicotina","fumador","cesacion tabaquica"]
-]
+}
 
 df_catalogo_ges = pd.DataFrame(CATALOGO_GES)
 
